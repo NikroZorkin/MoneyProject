@@ -1,0 +1,14 @@
+---
+description: LLM usage for categorization + parsing assistance (strict JSON, validation, audit)
+globs: ["src/server/llm/**", "src/lib/llm/**", "src/features/import/**"]
+alwaysApply: false
+---
+
+# LLM Contracts
+
+- LLM is allowed to suggest category/merchant normalization, not to compute totals.
+- Require strict JSON outputs matching a versioned schema.
+- Validate LLM output with Zod; on validation failure -> show errors + require manual review.
+- Store: model, promptVersion, rawResponse, parsedJson, validationErrors.
+- Confidence score per transaction; low confidence must be highlighted in Review UI.
+

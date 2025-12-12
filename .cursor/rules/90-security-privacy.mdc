@@ -1,0 +1,13 @@
+---
+description: Protect sensitive banking data (uploads, logs, deployment)
+globs: ["src/server/**", "src/app/api/**", "**/*"]
+alwaysApply: false
+---
+
+# Security / Privacy
+
+- AI API keys are server-only env vars. Never expose to client.
+- Do not store PDFs in publicly served paths.
+- Avoid logging raw statement content by default.
+- If deployed, ensure the app is not indexable (noindex) and protected (auth).
+

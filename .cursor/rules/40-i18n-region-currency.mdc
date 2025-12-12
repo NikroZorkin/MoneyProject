@@ -1,0 +1,15 @@
+---
+description: i18n, region settings, and display currency behavior
+globs: ["src/i18n/**", "src/app/**", "src/components/**"]
+alwaysApply: false
+---
+
+# i18n / Region / Currency
+
+- Implement locale-based routing and formatting with next-intl.
+- Region affects: date format, number separators, week start, UI labels.
+- Display currency:
+  - reportCurrency chosen by user in Settings
+  - amounts shown using Intl formatting based on locale + reportCurrency
+- Do not tie "language" to "currency" automatically; user controls both.
+

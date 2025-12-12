@@ -1,0 +1,15 @@
+---
+description: Currency conversion rules (ECB rates, cross-rates, caching)
+globs: ["src/lib/fx/**", "src/server/fx/**", "src/features/**"]
+alwaysApply: false
+---
+
+# FX Conversion
+
+- Use ECB reference rates / ECB Data Portal as the authoritative source.
+- Store rates by day; if a day is missing, use the latest previous available rate.
+- Convert using integer math where possible; define a consistent rounding rule (e.g. bankers rounding or round half up).
+- Persist: fxDateUsed, fxRateUsed, source="ECB".
+- Always keep originalAmount + originalCurrency unchanged.
+- Converted totals in Dashboard use report currency.
+

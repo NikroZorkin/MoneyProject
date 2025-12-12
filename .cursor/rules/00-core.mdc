@@ -1,0 +1,14 @@
+---
+description: Non-negotiables for correctness and product scope
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Non-negotiables
+
+- Never compute totals from LLM output. Totals come only from validated transaction records.
+- Money is stored as integer cents. No floats.
+- Every import must be auditable: keep source file metadata + extracted text/rows + parse result + user edits.
+- UX must include Review Table before committing transactions.
+- Prefer CSV import when available; PDF import is supported but considered more fragile.
+

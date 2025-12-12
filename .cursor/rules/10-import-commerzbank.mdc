@@ -1,0 +1,18 @@
+---
+description: Import strategy for Commerzbank statements (PDF/CSV)
+globs: ["src/features/import/**", "src/app/**/import/**", "src/server/import/**"]
+alwaysApply: false
+---
+
+# Commerzbank Import
+
+- Support CSV import as the "high accuracy" path; PDF import as fallback.
+- Parsing pipeline:
+  1) detect file type
+  2) extract rows/text
+  3) normalize fields (date, amount, currency, description)
+  4) run categorization suggestions
+  5) show Review Table
+- Store per-transaction source pointers (row index / page+line) for debugging.
+- Keep fixtures of real extracted text/CSV to prevent regressions.
+
