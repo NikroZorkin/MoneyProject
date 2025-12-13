@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum FxDateSource {
+  VALUTA
+  BOOKING_FALLBACK
+  MANUAL
+}
+
+enum ImportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model Transaction {
+  id                    String        @id @default(cuid())
+  bookingDate           DateTime
+  valutaDate            DateTime
+  accountAmountCents    Int
+  accountCurrency       String
+  reportCurrency        String
+  convertedAmountCents Int?
+  fxRateUsed            Decimal?
+  fxDateUsed            DateTime?
+  fxDateSource          FxDateSource?
+  descriptionRaw        String
+  merchantNormalized    String?
+  categoryId            String?
+  category              Category?     @relation(fields: [categoryId], references: [id])
+  isReviewed            Boolean       @default(false)
+  confidence            Float?
+  importId              String
+  import                Import        @relation(fields: [importId], references: [id])
+  sourceRef             String        // rowIndex/pageLine
+  txnExternalId         String?       // External transaction ID from CSV if available
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  @@index([importId])
+  @@index([categoryId])
+  @@index([bookingDate])
+  @@index([isReviewed])
+  @@unique([importId, sourceRef])
+}
+
+model FxRate {
+  id            String   @id @default(cuid())
+  date          DateTime
+  baseCurrency  String   @default("EUR")
+  quoteCurrency String
+  rate          Decimal
+  source        String   @default("ECB")
+  createdAt     DateTime @default(now())
+
+  @@unique([date, baseCurrency, quoteCurrency])
+  @@index([date])
+  @@index([baseCurrency, quoteCurrency])
+}
+
+model Import {
+  id                String           @id @default(cuid())
+  fileHash          String           @unique
+  extractedTextHash String?          @unique
+  statementFrom     DateTime?
+  statementTo       DateTime?
+  status            ImportStatus      @default(PENDING)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  transactions      Transaction[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Category {
+  id          String              @id @default(cuid())
+  key         String              @unique // Stable key (e.g., "food_groceries")
+  translations CategoryTranslation[]
+  transactions Transaction[]
+  budgets     BudgetCategory[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime             @updatedAt
+}
+
+model CategoryTranslation {
+  id         String   @id @default(cuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  locale     String
+  name       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([categoryId, locale])
+  @@index([locale])
+}
+
+model BudgetMonth {
+  id            String           @id @default(cuid())
+  month         DateTime         // First day of month
+  currency      String
+  region        String?
+  totalLimitCents Int?
+  categories    BudgetCategory[]
+  incomePlans   IncomePlan[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@unique([month, currency])
+  @@index([month])
+}
+
+model BudgetCategory {
+  id            String      @id @default(cuid())
+  budgetMonthId String
+  budgetMonth   BudgetMonth @relation(fields: [budgetMonthId], references: [id], onDelete: Cascade)
+  categoryId    String
+  category      Category    @relation(fields: [categoryId], references: [id])
+  limitCents    Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([budgetMonthId, categoryId])
+  @@index([budgetMonthId])
+}
+
+model IncomePlan {
+  id              String      @id @default(cuid())
+  budgetMonthId  String
+  budgetMonth     BudgetMonth @relation(fields: [budgetMonthId], references: [id], onDelete: Cascade)
+  name            String
+  plannedAmountCents Int
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([budgetMonthId])
+}
