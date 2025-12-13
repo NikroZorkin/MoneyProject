@@ -1,0 +1,27 @@
+{
+  "common": {
+    "appName": "Проект Деньги",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "loading": "Загрузка..."
+  },
+  "nav": {
+    "dashboard": "Панель",
+    "import": "Импорт",
+    "budgets": "Бюджеты",
+    "settings": "Настройки"
+  },
+  "categories": {
+    "food": "Еда",
+    "transport": "Транспорт",
+    "utilities": "Коммунальные",
+    "entertainment": "Развлечения",
+    "healthcare": "Здоровье",
+    "shopping": "Покупки",
+    "income": "Доходы",
+    "uncategorized": "Без категории"
+  }
+}
+

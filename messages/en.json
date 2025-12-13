@@ -1,0 +1,27 @@
+{
+  "common": {
+    "appName": "Money Project",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "loading": "Loading..."
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "import": "Import",
+    "budgets": "Budgets",
+    "settings": "Settings"
+  },
+  "categories": {
+    "food": "Food",
+    "transport": "Transport",
+    "utilities": "Utilities",
+    "entertainment": "Entertainment",
+    "healthcare": "Healthcare",
+    "shopping": "Shopping",
+    "income": "Income",
+    "uncategorized": "Uncategorized"
+  }
+}
+

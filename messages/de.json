@@ -1,0 +1,27 @@
+{
+  "common": {
+    "appName": "Geld Projekt",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "loading": "Laden..."
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "import": "Importieren",
+    "budgets": "Budgets",
+    "settings": "Einstellungen"
+  },
+  "categories": {
+    "food": "Essen",
+    "transport": "Transport",
+    "utilities": "Versorgung",
+    "entertainment": "Unterhaltung",
+    "healthcare": "Gesundheit",
+    "shopping": "Einkaufen",
+    "income": "Einkommen",
+    "uncategorized": "Nicht kategorisiert"
+  }
+}
+
