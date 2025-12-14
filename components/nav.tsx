@@ -19,20 +19,19 @@ export function Nav() {
   return (
     <nav className="border-b">
       <div className="container mx-auto flex h-16 items-center gap-4">
-        <Link href={`/${locale}/dashboard`} className="font-bold">
+        <Link href="/dashboard" className="font-bold">
           Money Project
         </Link>
         <div className="flex gap-2">
           {navItems.map((item) => {
-            const href = `/${locale}${item.href}`;
-            const isActive = pathname === href;
+            const isActive = pathname === item.href;
             return (
               <Button
                 key={item.href}
                 variant={isActive ? 'default' : 'ghost'}
                 asChild
               >
-                <Link href={href}>{item.label}</Link>
+                <Link href={item.href}>{item.label}</Link>
               </Button>
             );
           })}
