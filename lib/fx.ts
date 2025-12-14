@@ -113,3 +113,4 @@ export async function fetchEcbRates(date: Date): Promise<void> {
   throw new Error('ECB rate fetching not yet implemented');
 }
 
+
