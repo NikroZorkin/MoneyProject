@@ -1,0 +1,35 @@
+[
+  {
+    "bookingDate": "2024-12-01T00:00:00.000Z",
+    "valutaDate": "2024-12-01T00:00:00.000Z",
+    "accountAmountCents": -12550,
+    "accountCurrency": "EUR",
+    "descriptionRaw": "Einkauf Lebensmittel",
+    "sourceRef": "row:1"
+  },
+  {
+    "bookingDate": "2024-12-02T00:00:00.000Z",
+    "valutaDate": "2024-12-02T00:00:00.000Z",
+    "accountAmountCents": -6500,
+    "accountCurrency": "EUR",
+    "descriptionRaw": "Kraftstoff",
+    "sourceRef": "row:2"
+  },
+  {
+    "bookingDate": "2024-12-05T00:00:00.000Z",
+    "valutaDate": "2024-12-05T00:00:00.000Z",
+    "accountAmountCents": 350000,
+    "accountCurrency": "EUR",
+    "descriptionRaw": "Gehalt",
+    "sourceRef": "row:3"
+  },
+  {
+    "bookingDate": "2024-12-10T00:00:00.000Z",
+    "valutaDate": "2024-12-10T00:00:00.000Z",
+    "accountAmountCents": -8999,
+    "accountCurrency": "EUR",
+    "descriptionRaw": "Weihnachtsgeschenke",
+    "sourceRef": "row:4"
+  }
+]
+

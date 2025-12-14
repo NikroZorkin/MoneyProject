@@ -1,0 +1,6 @@
+Buchungstag;Valutadatum;Auftraggeber/Zahlungsempfänger;Empfänger/Zahlungspflichtiger;Verwendungszweck;Betrag;Währung
+01.12.2024;01.12.2024;MUSTERMANN, MAX;SUPERMARKT GMBH;Einkauf Lebensmittel;-125,50;EUR
+02.12.2024;02.12.2024;MUSTERMANN, MAX;TANKSTELLE ABC;Kraftstoff;-65,00;EUR
+05.12.2024;05.12.2024;ARBEITGEBER AG;MUSTERMANN, MAX;Gehalt;3500,00;EUR
+10.12.2024;10.12.2024;MUSTERMANN, MAX;ONLINE SHOP XYZ;Weihnachtsgeschenke;-89,99;EUR
+
