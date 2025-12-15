@@ -5,6 +5,7 @@ import { routing } from '@/i18n/routing';
 import { Nav } from '@/components/nav';
 import { Toaster } from '@/components/ui/sonner';
 import { HtmlLang } from '@/components/html-lang';
+import { AuroraBackground } from '@/components/ui/aurora-background';
 
 export default async function LocaleLayout({
   children,
@@ -24,8 +25,12 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages}>
       <HtmlLang />
-      <Nav />
-      {children}
+      <AuroraBackground className="min-h-screen">
+        <Nav />
+        <main className="flex-1 w-full">
+          {children}
+        </main>
+      </AuroraBackground>
       <Toaster />
     </NextIntlClientProvider>
   );

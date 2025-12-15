@@ -7,8 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from 'sonner';
+import { Settings, Globe, DollarSign, Tag, Check, X, Pencil } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -44,7 +44,6 @@ export default function SettingsPage() {
   };
 
   const loadSettings = async () => {
-    // Load from localStorage or API
     const savedCurrency = localStorage.getItem('reportCurrency');
     if (savedCurrency) {
       setReportCurrency(savedCurrency);
@@ -96,129 +95,170 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-6">{t('settings')}</h1>
+    <div className="container mx-auto py-8 px-4 max-w-4xl">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-white mb-2 text-glow">
+          {t('settings')}
+        </h1>
+        <p className="text-white/50">
+          Customize your preferences and settings
+        </p>
+      </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
+        {/* Language & Region */}
         <Card>
           <CardHeader>
-            <CardTitle>Language & Region</CardTitle>
-            <CardDescription>UI language, date format, week start</CardDescription>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-blue-500/20">
+                <Globe className="h-5 w-5 text-blue-400" />
+              </div>
+              <div>
+                <CardTitle className="text-white">Language & Region</CardTitle>
+                <CardDescription className="text-white/40">
+                  UI language, date format, week start
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Language</label>
+              <label className="text-sm font-medium text-white/70">Language</label>
               <Select value={locale} onValueChange={handleLanguageChange}>
-                <SelectTrigger>
+                <SelectTrigger className="glass-input">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="ru">Русский</SelectItem>
-                  <SelectItem value="de">Deutsch</SelectItem>
+                  <SelectItem value="en">🇬🇧 English</SelectItem>
+                  <SelectItem value="ru">🇷🇺 Русский</SelectItem>
+                  <SelectItem value="de">🇩🇪 Deutsch</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-white/40">
               Date format and week start are determined by the selected language/region.
             </p>
           </CardContent>
         </Card>
 
+        {/* Display Currency */}
         <Card>
           <CardHeader>
-            <CardTitle>Display Currency</CardTitle>
-            <CardDescription>Report currency for dashboard and reports</CardDescription>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-lime-500/20">
+                <DollarSign className="h-5 w-5 text-lime-400" />
+              </div>
+              <div>
+                <CardTitle className="text-white">Display Currency</CardTitle>
+                <CardDescription className="text-white/40">
+                  Report currency for dashboard and reports
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Report Currency</label>
+              <label className="text-sm font-medium text-white/70">Report Currency</label>
               <Select value={reportCurrency} onValueChange={handleCurrencyChange}>
-                <SelectTrigger>
+                <SelectTrigger className="glass-input">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="EUR">EUR (Euro)</SelectItem>
-                  <SelectItem value="USD">USD (US Dollar)</SelectItem>
-                  <SelectItem value="GBP">GBP (British Pound)</SelectItem>
-                  <SelectItem value="JPY">JPY (Japanese Yen)</SelectItem>
-                  <SelectItem value="CHF">CHF (Swiss Franc)</SelectItem>
-                  <SelectItem value="PLN">PLN (Polish Zloty)</SelectItem>
+                  <SelectItem value="EUR">EUR - Euro</SelectItem>
+                  <SelectItem value="USD">USD - US Dollar</SelectItem>
+                  <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                  <SelectItem value="JPY">JPY - Japanese Yen</SelectItem>
+                  <SelectItem value="CHF">CHF - Swiss Franc</SelectItem>
+                  <SelectItem value="PLN">PLN - Polish Zloty</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <p className="text-sm text-muted-foreground">
-              All amounts in the dashboard will be converted and displayed in this currency.
+            <p className="text-sm text-white/40">
+              All amounts in the dashboard will be converted and displayed in this currency using ECB rates.
             </p>
           </CardContent>
         </Card>
 
+        {/* Categories */}
         <Card>
           <CardHeader>
-            <CardTitle>Categories</CardTitle>
-            <CardDescription>Manage transaction category names</CardDescription>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-purple-500/20">
+                <Tag className="h-5 w-5 text-purple-400" />
+              </div>
+              <div>
+                <CardTitle className="text-white">Categories</CardTitle>
+                <CardDescription className="text-white/40">
+                  Manage transaction category names ({locale.toUpperCase()})
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Key</TableHead>
-                  <TableHead>Name ({locale})</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {categories.map(cat => (
-                  <TableRow key={cat.id}>
-                    <TableCell className="font-mono text-sm">{cat.key}</TableCell>
-                    <TableCell>
-                      {editingCategory === cat.id ? (
-                        <div className="flex gap-2">
-                          <Input
-                            value={editingName}
-                            onChange={e => setEditingName(e.target.value)}
-                            className="flex-1"
-                          />
-                          <Button
-                            size="sm"
-                            onClick={() => saveCategoryName(cat.id)}
-                            disabled={saving}
-                          >
-                            Save
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setEditingCategory(null)}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      ) : (
-                        <span>{cat.name}</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editingCategory !== cat.id && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => startEditCategory(cat)}
-                        >
-                          Edit
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="space-y-2">
+              {categories.map(cat => (
+                <div 
+                  key={cat.id} 
+                  className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/8 transition-colors"
+                >
+                  <code className="text-xs text-white/40 font-mono bg-white/5 px-2 py-1 rounded min-w-[140px]">
+                    {cat.key}
+                  </code>
+                  
+                  {editingCategory === cat.id ? (
+                    <div className="flex-1 flex gap-2">
+                      <Input
+                        value={editingName}
+                        onChange={e => setEditingName(e.target.value)}
+                        className="glass-input flex-1"
+                        autoFocus
+                      />
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="text-lime-400 hover:text-lime-300 hover:bg-lime-500/10"
+                        onClick={() => saveCategoryName(cat.id)}
+                        disabled={saving}
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="text-white/50 hover:text-white hover:bg-white/10"
+                        onClick={() => setEditingCategory(null)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="flex-1 text-white">{cat.name}</span>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="text-white/40 hover:text-white hover:bg-white/10"
+                        onClick={() => startEditCategory(cat)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              ))}
+              
+              {categories.length === 0 && (
+                <div className="text-center py-8 text-white/40">
+                  <Tag className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p>No categories found</p>
+                  <p className="text-sm">Run database seed to create default categories</p>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
     </div>
   );
 }
-
-
-

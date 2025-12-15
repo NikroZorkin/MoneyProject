@@ -7,11 +7,33 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        // Glassmorphism base
+        "relative flex flex-col gap-6 rounded-xl py-6 overflow-hidden",
+        // Glass background
+        "bg-white/[0.08] backdrop-blur-xl",
+        // Glass border
+        "border border-white/[0.18]",
+        // Deep shadow + subtle lime glow
+        "shadow-[0_8px_32px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.1)]",
+        // Text color
+        "text-card-foreground",
+        // Hover glow effect
+        "transition-all duration-300 hover:shadow-[0_8px_32px_rgba(0,0,0,0.35),0_0_30px_rgba(184,245,1,0.1),inset_0_1px_0_rgba(255,255,255,0.15)]",
         className
       )}
       {...props}
-    />
+    >
+      {/* Liquid glass shimmer effect */}
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-0 hover:opacity-100 transition-opacity duration-500"
+        style={{
+          background: 'linear-gradient(100deg, rgba(255,255,255,0) 20%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0) 80%)',
+          transform: 'skewX(-15deg) translateX(-100%)',
+          animation: 'shimmer 2s ease-in-out infinite',
+        }}
+      />
+      {props.children}
+    </div>
   )
 }
 
@@ -32,7 +54,10 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("leading-none font-semibold", className)}
+      className={cn(
+        "leading-none font-semibold text-white/90",
+        className
+      )}
       {...props}
     />
   )
@@ -42,7 +67,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-description"
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn("text-white/50 text-sm", className)}
       {...props}
     />
   )

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { formatMoney, parseMoney } from '@/lib/money';
 import { toast } from 'sonner';
+import { PiggyBank, Plus, Trash2, DollarSign, TrendingUp, Save } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -117,154 +118,263 @@ export default function BudgetsPage() {
     setIncomePlans([...incomePlans, { name: '', plannedAmountCents: 0 }]);
   };
 
+  const totalBudget = categoryBudgets.reduce((sum, cb) => sum + cb.limitCents, 0);
+  const totalIncome = incomePlans.reduce((sum, ip) => sum + ip.plannedAmountCents, 0);
+
   return (
-    <div className="container mx-auto py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-6">{t('budgets')}</h1>
+    <div className="container mx-auto py-8 px-4 max-w-4xl">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-white mb-2 text-glow">
+          {t('budgets')}
+        </h1>
+        <p className="text-white/50">
+          Plan your monthly spending and income
+        </p>
+      </div>
 
+      {/* Summary Cards */}
+      <div className="grid gap-4 md:grid-cols-3 mb-8">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-lg bg-lime-500/20">
+                <TrendingUp className="h-6 w-6 text-lime-400" />
+              </div>
+              <div>
+                <p className="text-sm text-white/50">Planned Income</p>
+                <p className="text-2xl font-bold text-lime-400">
+                  {formatMoney(totalIncome, currency, locale)}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-lg bg-red-500/20">
+                <PiggyBank className="h-6 w-6 text-red-400" />
+              </div>
+              <div>
+                <p className="text-sm text-white/50">Total Budget</p>
+                <p className="text-2xl font-bold text-red-400">
+                  {formatMoney(totalBudget, currency, locale)}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className={totalIncome - totalBudget >= 0 ? 'lime-glow' : ''}>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className={`p-3 rounded-lg ${totalIncome - totalBudget >= 0 ? 'bg-lime-500/20' : 'bg-red-500/20'}`}>
+                <DollarSign className={`h-6 w-6 ${totalIncome - totalBudget >= 0 ? 'text-lime-400' : 'text-red-400'}`} />
+              </div>
+              <div>
+                <p className="text-sm text-white/50">Savings Goal</p>
+                <p className={`text-2xl font-bold ${totalIncome - totalBudget >= 0 ? 'text-lime-400' : 'text-red-400'}`}>
+                  {formatMoney(totalIncome - totalBudget, currency, locale)}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Currency Selection */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Monthly Budget</CardTitle>
-          <CardDescription>Set budgets for the current month</CardDescription>
+          <CardTitle className="text-white">Budget Settings</CardTitle>
+          <CardDescription className="text-white/40">Configure your budget currency</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Currency</label>
-            <Select value={currency} onValueChange={setCurrency}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="EUR">EUR</SelectItem>
-                <SelectItem value="USD">USD</SelectItem>
-                <SelectItem value="GBP">GBP</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-white/70">Currency</label>
+              <Select value={currency} onValueChange={setCurrency}>
+                <SelectTrigger className="glass-input">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="EUR">EUR - Euro</SelectItem>
+                  <SelectItem value="USD">USD - US Dollar</SelectItem>
+                  <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Total Limit (Optional)</label>
-            <Input
-              type="text"
-              placeholder="0.00"
-              value={totalLimitCents !== null ? formatMoney(totalLimitCents, currency, locale).replace(/[^\d.,-]/g, '') : ''}
-              onChange={e => {
-                const parsed = parseMoney(e.target.value);
-                setTotalLimitCents(parsed || null);
-              }}
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-white/70">Total Limit (Optional)</label>
+              <Input
+                type="text"
+                placeholder="0.00"
+                className="glass-input"
+                value={totalLimitCents !== null ? (totalLimitCents / 100).toFixed(2) : ''}
+                onChange={e => {
+                  const parsed = parseMoney(e.target.value);
+                  setTotalLimitCents(parsed || null);
+                }}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
 
+      {/* Category Budgets */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Category Budgets</CardTitle>
-          <CardDescription>Set limits per category</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-white">Category Budgets</CardTitle>
+              <CardDescription className="text-white/40">Set spending limits per category</CardDescription>
+            </div>
+            <Button variant="outline" size="sm" onClick={addCategoryBudget}>
+              <Plus className="h-4 w-4 mr-1" />
+              Add
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {categoryBudgets.map((cb, index) => (
-            <div key={index} className="flex gap-2 items-end">
-              <div className="flex-1">
-                <Select
-                  value={cb.categoryId}
-                  onValueChange={value =>
-                    setCategoryBudgets(prev =>
-                      prev.map((item, i) => (i === index ? { ...item, categoryId: value } : item))
-                    )
-                  }
+        <CardContent className="space-y-3">
+          {categoryBudgets.length === 0 ? (
+            <div className="text-center py-8 text-white/40">
+              <PiggyBank className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p>No category budgets set</p>
+              <p className="text-sm">Click "Add" to create one</p>
+            </div>
+          ) : (
+            categoryBudgets.map((cb, index) => (
+              <div key={index} className="flex gap-3 items-center p-3 rounded-lg bg-white/5">
+                <div className="flex-1">
+                  <Select
+                    value={cb.categoryId}
+                    onValueChange={value =>
+                      setCategoryBudgets(prev =>
+                        prev.map((item, i) => (i === index ? { ...item, categoryId: value } : item))
+                      )
+                    }
+                  >
+                    <SelectTrigger className="glass-input">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map(cat => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="w-32">
+                  <Input
+                    type="text"
+                    placeholder="0.00"
+                    className="glass-input text-right"
+                    value={(cb.limitCents / 100).toFixed(2)}
+                    onChange={e => {
+                      const parsed = parseMoney(e.target.value);
+                      setCategoryBudgets(prev =>
+                        prev.map((item, i) => (i === index ? { ...item, limitCents: parsed } : item))
+                      );
+                    }}
+                  />
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                  onClick={() => setCategoryBudgets(prev => prev.filter((_, i) => i !== index))}
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map(cat => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
-              <div className="flex-1">
-                <Input
-                  type="text"
-                  placeholder="0.00"
-                  value={formatMoney(cb.limitCents, currency, locale).replace(/[^\d.,-]/g, '')}
-                  onChange={e => {
-                    const parsed = parseMoney(e.target.value);
-                    setCategoryBudgets(prev =>
-                      prev.map((item, i) => (i === index ? { ...item, limitCents: parsed } : item))
-                    );
-                  }}
-                />
-              </div>
-              <Button
-                variant="ghost"
-                onClick={() => setCategoryBudgets(prev => prev.filter((_, i) => i !== index))}
-              >
-                Remove
-              </Button>
-            </div>
-          ))}
-          <Button variant="outline" onClick={addCategoryBudget}>
-            Add Category Budget
-          </Button>
+            ))
+          )}
         </CardContent>
       </Card>
 
+      {/* Income Plans */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Planned Income</CardTitle>
-          <CardDescription>Expected income sources</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {incomePlans.map((ip, index) => (
-            <div key={index} className="flex gap-2 items-end">
-              <div className="flex-1">
-                <Input
-                  type="text"
-                  placeholder="Income source name"
-                  value={ip.name}
-                  onChange={e =>
-                    setIncomePlans(prev =>
-                      prev.map((item, i) => (i === index ? { ...item, name: e.target.value } : item))
-                    )
-                  }
-                />
-              </div>
-              <div className="flex-1">
-                <Input
-                  type="text"
-                  placeholder="0.00"
-                  value={formatMoney(ip.plannedAmountCents, currency, locale).replace(/[^\d.,-]/g, '')}
-                  onChange={e => {
-                    const parsed = parseMoney(e.target.value);
-                    setIncomePlans(prev =>
-                      prev.map((item, i) => (i === index ? { ...item, plannedAmountCents: parsed } : item))
-                    );
-                  }}
-                />
-              </div>
-              <Button
-                variant="ghost"
-                onClick={() => setIncomePlans(prev => prev.filter((_, i) => i !== index))}
-              >
-                Remove
-              </Button>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-white">Planned Income</CardTitle>
+              <CardDescription className="text-white/40">Expected income sources for the month</CardDescription>
             </div>
-          ))}
-          <Button variant="outline" onClick={addIncomePlan}>
-            Add Income Plan
-          </Button>
+            <Button variant="outline" size="sm" onClick={addIncomePlan}>
+              <Plus className="h-4 w-4 mr-1" />
+              Add
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {incomePlans.length === 0 ? (
+            <div className="text-center py-8 text-white/40">
+              <TrendingUp className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p>No income plans set</p>
+              <p className="text-sm">Click "Add" to create one</p>
+            </div>
+          ) : (
+            incomePlans.map((ip, index) => (
+              <div key={index} className="flex gap-3 items-center p-3 rounded-lg bg-white/5">
+                <div className="flex-1">
+                  <Input
+                    type="text"
+                    placeholder="Income source name"
+                    className="glass-input"
+                    value={ip.name}
+                    onChange={e =>
+                      setIncomePlans(prev =>
+                        prev.map((item, i) => (i === index ? { ...item, name: e.target.value } : item))
+                      )
+                    }
+                  />
+                </div>
+                <div className="w-32">
+                  <Input
+                    type="text"
+                    placeholder="0.00"
+                    className="glass-input text-right"
+                    value={(ip.plannedAmountCents / 100).toFixed(2)}
+                    onChange={e => {
+                      const parsed = parseMoney(e.target.value);
+                      setIncomePlans(prev =>
+                        prev.map((item, i) => (i === index ? { ...item, plannedAmountCents: parsed } : item))
+                      );
+                    }}
+                  />
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                  onClick={() => setIncomePlans(prev => prev.filter((_, i) => i !== index))}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))
+          )}
         </CardContent>
       </Card>
 
-      <Button onClick={handleSave} disabled={saving} className="w-full">
-        {saving ? 'Saving...' : 'Save Budget'}
+      {/* Save Button */}
+      <Button onClick={handleSave} disabled={saving} className="w-full h-12 text-base">
+        {saving ? (
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 border-2 border-[#0a2818]/30 border-t-[#0a2818] rounded-full animate-spin" />
+            Saving...
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Save className="h-5 w-5" />
+            Save Budget
+          </div>
+        )}
       </Button>
     </div>
   );
 }
-
-
-
