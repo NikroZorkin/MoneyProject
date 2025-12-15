@@ -1,6 +1,6 @@
-// Direct import from generated Prisma Client to avoid default.js circular dependency
-// @ts-ignore - TypeScript will resolve this correctly
-import { PrismaClient } from '../node_modules/.prisma/client/client';
+// Standard import from @prisma/client
+// Next.js serverExternalPackages ensures this is loaded as external module
+import { PrismaClient } from '@prisma/client';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;

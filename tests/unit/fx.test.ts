@@ -1,7 +1,9 @@
 // @ts-nocheck
 import { convertAmount, getFxRate } from '@/lib/fx';
 import { prisma } from '@/lib/prisma';
-import { Decimal } from '@prisma/client/runtime/library';
+import { Prisma } from '@prisma/client';
+
+const Decimal = Prisma.Decimal;
 
 describe('FX Conversion', () => {
   beforeEach(async () => {

@@ -1,6 +1,9 @@
 import { prisma } from './prisma';
-import { Decimal } from '@prisma/client/runtime/library';
+import { Prisma } from '@prisma/client';
 import { roundHalfUp } from './money';
+
+// Prisma 6 uses Prisma.Decimal
+const Decimal = Prisma.Decimal;
 
 export type FxDateSource = 'VALUTA' | 'BOOKING_FALLBACK' | 'MANUAL';
 
