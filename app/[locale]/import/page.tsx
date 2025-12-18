@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Upload, FileText, FileSpreadsheet, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Upload, FileText, FileSpreadsheet, AlertCircle, CheckCircle2, Brain, Sparkles } from 'lucide-react';
 
 export default function ImportPage() {
   const t = useTranslations('nav');
