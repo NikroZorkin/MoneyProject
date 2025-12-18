@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { formatMoney } from '@/lib/money';
 import { useLocale } from 'next-intl';
+import { Brain, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 interface Transaction {
   id: string;
@@ -154,17 +155,57 @@ export default function ReviewPage() {
   }
 
   const unreviewedCount = transactions.filter(tx => !tx.isReviewed).length;
+  const lowConfidenceCount = transactions.filter(tx => tx.confidence !== null && tx.confidence < 0.7).length;
+  const aiCategorizedCount = transactions.filter(tx => tx.categoryId && tx.confidence !== null).length;
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Review Transactions</h1>
-        <div className="flex gap-2">
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving...' : 'Save & Complete'}
-          </Button>
-        </div>
+    <div className="container mx-auto py-8 px-4">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-white mb-2 text-glow">Review Transactions</h1>
+        <p className="text-white/50">
+          Verify AI-suggested categories and merchant names
+        </p>
       </div>
+
+      {/* AI Analysis Summary */}
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
+              <Brain className="h-5 w-5 text-purple-400" />
+              <span className="text-white/70">
+                <span className="text-purple-400 font-semibold">{aiCategorizedCount}</span> AI categorized
+              </span>
+            </div>
+            
+            {lowConfidenceCount > 0 && (
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                <AlertTriangle className="h-5 w-5 text-orange-400" />
+                <span className="text-white/70">
+                  <span className="text-orange-400 font-semibold">{lowConfidenceCount}</span> need review (low confidence)
+                </span>
+              </div>
+            )}
+            
+            <div className="flex-1" />
+            
+            <Button onClick={handleSave} disabled={saving} className="min-w-[160px]">
+              {saving ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-[#0a2818]/30 border-t-[#0a2818] rounded-full animate-spin" />
+                  Saving...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Save & Complete
+                </div>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {unreviewedCount > 0 && (
         <Card className="mb-6">
@@ -266,9 +307,23 @@ export default function ReviewPage() {
                     </TableCell>
                     <TableCell>
                       {tx.confidence !== null && (
-                        <Badge variant={tx.confidence > 0.8 ? 'default' : 'secondary'}>
-                          {(tx.confidence * 100).toFixed(0)}%
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          {tx.confidence >= 0.8 ? (
+                            <Badge className="bg-lime-500/20 text-lime-400 border-lime-500/30">
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              {(tx.confidence * 100).toFixed(0)}%
+                            </Badge>
+                          ) : tx.confidence >= 0.5 ? (
+                            <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">
+                              {(tx.confidence * 100).toFixed(0)}%
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
+                              <AlertTriangle className="h-3 w-3 mr-1" />
+                              {(tx.confidence * 100).toFixed(0)}%
+                            </Badge>
+                          )}
+                        </div>
                       )}
                     </TableCell>
                   </TableRow>

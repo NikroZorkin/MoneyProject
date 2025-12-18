@@ -71,11 +71,18 @@ export default function ImportPage() {
     }
 
     setUploading(true);
+    setStage('uploading');
 
     try {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('reportCurrency', reportCurrency);
+
+      // Show parsing stage after a short delay
+      setTimeout(() => setStage('parsing'), 500);
+      
+      // Show AI analyzing stage
+      setTimeout(() => setStage('analyzing'), 1500);
 
       const response = await fetch('/api/import', {
         method: 'POST',
@@ -85,6 +92,7 @@ export default function ImportPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        setStage('idle');
         if (response.status === 409) {
           toast.error(data.error || 'This file has already been imported');
           if (data.importId) {
@@ -96,14 +104,24 @@ export default function ImportPage() {
         return;
       }
 
-      toast.success(`Successfully imported ${data.transactionCount} transactions`);
+      setStage('done');
       
-      if (data.importId) {
-        router.push(`/import/review/${data.importId}`);
-      }
+      const aiMessage = data.aiAnalyzed 
+        ? `AI analyzed and categorized ${data.transactionCount} transactions` 
+        : `Imported ${data.transactionCount} transactions (AI analysis unavailable)`;
+      
+      toast.success(aiMessage);
+      
+      // Short delay to show success state
+      setTimeout(() => {
+        if (data.importId) {
+          router.push(`/import/review/${data.importId}`);
+        }
+      }, 1000);
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('Failed to upload file');
+      setStage('idle');
     } finally {
       setUploading(false);
     }
@@ -232,6 +250,15 @@ export default function ImportPage() {
             </p>
           </div>
 
+          {/* AI Info Box */}
+          <div className="flex items-start gap-3 p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
+            <Brain className="h-5 w-5 text-purple-400 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-white/70">
+              <span className="text-purple-400 font-medium">AI-Powered Analysis</span>: 
+              Transactions will be automatically categorized and merchant names normalized using GPT-4.
+            </p>
+          </div>
+
           {/* Upload button */}
           <Button
             onClick={handleUpload}
@@ -241,12 +268,26 @@ export default function ImportPage() {
             {uploading ? (
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 border-2 border-[#0a2818]/30 border-t-[#0a2818] rounded-full animate-spin" />
-                Importing...
+                {stage === 'uploading' && 'Uploading file...'}
+                {stage === 'parsing' && 'Parsing transactions...'}
+                {stage === 'analyzing' && (
+                  <>
+                    <Sparkles className="h-4 w-4 animate-pulse" />
+                    AI analyzing...
+                  </>
+                )}
+                {stage === 'done' && (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" />
+                    Done!
+                  </>
+                )}
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <Upload className="h-5 w-5" />
-                Upload and Import
+                <Brain className="h-4 w-4" />
+                Upload and Analyze with AI
               </div>
             )}
           </Button>

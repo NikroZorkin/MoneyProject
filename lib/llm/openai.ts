@@ -12,8 +12,8 @@
 import { z } from 'zod';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const MODEL = 'gpt-4o-mini';
-const PROMPT_VERSION = '1.0.0';
+const MODEL = 'gpt-5.2';
+const PROMPT_VERSION = '1.1.0'; // Updated for GPT-5.2
 
 // Zod schema for LLM response validation
 const TransactionAnalysisSchema = z.object({
@@ -51,7 +51,13 @@ export async function analyzeTransactions(
   transactions: TransactionForAnalysis[],
   availableCategories: string[]
 ): Promise<LLMResult> {
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/3fd1a540-59ca-4abc-88b9-9a8b673c0610',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'openai.ts:analyzeTransactions',message:'Function entry',data:{hasApiKey:!!OPENAI_API_KEY,apiKeyPrefix:OPENAI_API_KEY?.substring(0,10),model:MODEL,txCount:transactions.length,categories:availableCategories},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+  // #endregion
   if (!OPENAI_API_KEY) {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/3fd1a540-59ca-4abc-88b9-9a8b673c0610',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'openai.ts:analyzeTransactions',message:'API key missing',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+    // #endregion
     return {
       success: false,
       error: 'OpenAI API key not configured',

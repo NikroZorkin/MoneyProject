@@ -1,5 +1,3 @@
-import pdfParse from 'pdf-parse';
-
 export interface ParsedTransaction {
   bookingDate: Date;
   valutaDate: Date;
@@ -108,8 +106,14 @@ export async function parsePdfCommerzbank(buffer: Buffer): Promise<{
   text: string;
   transactions: ParsedTransaction[];
 }> {
-  const data = await pdfParse(buffer);
-  const text = data.text;
+  // pdf-parse v2.x uses a class-based API
+  const { PDFParse } = await import('pdf-parse');
+  
+  const parser = new PDFParse({ data: buffer });
+  const textResult = await parser.getText();
+  await parser.destroy();
+  
+  const text = textResult.text;
 
   if (!text || text.trim().length === 0) {
     throw new Error('PDF contains no extractable text. OCR may be required.');
@@ -151,7 +155,7 @@ export async function parsePdfCommerzbank(buffer: Buffer): Promise<{
           accountAmountCents,
           accountCurrency,
           descriptionRaw,
-          sourceRef: `page:${data.info?.PageNumber || 1},line:${i}`,
+          sourceRef: `line:${i}`,
         });
       } catch (error) {
         console.warn(`Error parsing PDF line ${i}:`, error);
