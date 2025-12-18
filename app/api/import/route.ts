@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
       statementTo
     );
 
-    // Convert transactions and create draft records
+    // Convert transactions and create draft records with AI analysis
     const draftTransactions = await Promise.all(
       transactions.map(async (tx, index) => {
         // Convert amount if needed
@@ -177,6 +177,9 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        // Get AI analysis results for this transaction
+        const analysis = aiAnalysis.get(index);
+
         return {
           bookingDate: tx.bookingDate,
           valutaDate: tx.valutaDate,
@@ -188,6 +191,9 @@ export async function POST(request: NextRequest) {
           fxDateUsed,
           fxDateSource,
           descriptionRaw: tx.descriptionRaw,
+          merchantNormalized: analysis?.merchantNormalized || null,
+          categoryId: analysis?.categoryId || null,
+          confidence: analysis?.confidence || null,
           importId: importRecord.id,
           sourceRef: tx.sourceRef,
           txnExternalId: tx.txnExternalId,
@@ -210,6 +216,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       importId: importRecord.id,
       transactionCount: transactions.length,
+      aiAnalyzed: llmResult.success,
+      aiModel: llmResult.model,
     });
   } catch (error) {
     console.error('Import error:', error);
