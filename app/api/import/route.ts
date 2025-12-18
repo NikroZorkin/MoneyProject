@@ -4,8 +4,9 @@ import { calculateFileHash, calculateTextHash, findExistingImport, createImport 
 import { ImportStatus } from '@prisma/client';
 import { parseCsvCommerzbank, parsePdfCommerzbank } from '@/lib/parsers/commerzbank';
 import { convertAmount } from '@/lib/fx';
+import { analyzeTransactions, categorizeByKeywords } from '@/lib/llm/openai';
 
-export const maxDuration = 60; // 60 seconds for large files
+export const maxDuration = 120; // 120 seconds for AI analysis
 export const maxFileSize = 10 * 1024 * 1024; // 10MB
 
 export async function POST(request: NextRequest) {
@@ -73,6 +74,52 @@ export async function POST(request: NextRequest) {
 
     if (transactions.length === 0) {
       return NextResponse.json({ error: 'No transactions found in file' }, { status: 400 });
+    }
+
+    // Get available categories for AI analysis
+    const categories = await prisma.category.findMany({
+      select: { id: true, key: true },
+    });
+    const categoryKeys = categories.map(c => c.key);
+    const categoryMap = new Map(categories.map(c => [c.key, c.id]));
+
+    // Prepare transactions for AI analysis
+    const transactionsForAnalysis = transactions.map((tx, index) => ({
+      index,
+      description: tx.descriptionRaw,
+      amount: tx.accountAmountCents / 100,
+      currency: tx.accountCurrency,
+      date: tx.bookingDate.toISOString().split('T')[0],
+    }));
+
+    // Run AI analysis
+    let aiAnalysis: Map<number, { categoryId: string | null; merchantNormalized: string; confidence: number }> = new Map();
+    
+    const llmResult = await analyzeTransactions(transactionsForAnalysis, categoryKeys);
+    
+    if (llmResult.success && llmResult.data) {
+      // Map AI results
+      for (const result of llmResult.data.transactions) {
+        const categoryId = categoryMap.get(result.suggestedCategory) || null;
+        aiAnalysis.set(result.index, {
+          categoryId,
+          merchantNormalized: result.merchantNormalized,
+          confidence: result.confidence,
+        });
+      }
+      console.log(`AI analysis completed: ${llmResult.data.transactions.length} transactions analyzed`);
+    } else {
+      // Fallback to keyword-based categorization
+      console.warn('AI analysis failed, using keyword fallback:', llmResult.error);
+      for (let i = 0; i < transactions.length; i++) {
+        const { category, confidence } = categorizeByKeywords(transactions[i].descriptionRaw);
+        const categoryId = categoryMap.get(category) || null;
+        aiAnalysis.set(i, {
+          categoryId,
+          merchantNormalized: transactions[i].descriptionRaw.substring(0, 100),
+          confidence,
+        });
+      }
     }
 
     // Calculate extracted text hash
