@@ -10,10 +10,18 @@ export const maxDuration = 120; // 120 seconds for AI analysis
 export const maxFileSize = 10 * 1024 * 1024; // 10MB
 
 export async function POST(request: NextRequest) {
+  // #region agent log
+  console.log('[DEBUG H0] Import route called');
+  fetch('http://127.0.0.1:7243/ingest/3fd1a540-59ca-4abc-88b9-9a8b673c0610',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'import/route.ts:entry',message:'Route entry',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H0'})}).catch(()=>{});
+  // #endregion
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const reportCurrency = (formData.get('reportCurrency') as string) || 'EUR';
+
+    // #region agent log
+    console.log('[DEBUG H0] File received:', file?.name, 'size:', file?.size, 'currency:', reportCurrency);
+    // #endregion
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
@@ -64,7 +72,14 @@ export async function POST(request: NextRequest) {
     if (isCsv) {
       const text = buffer.toString('utf-8');
       extractedText = text;
+      // #region agent log
+      console.log('[DEBUG H4] CSV text first 500 chars:', text.substring(0, 500));
+      // #endregion
       transactions = await parseCsvCommerzbank(text);
+      // #region agent log
+      console.log('[DEBUG H4] Parsed transactions count:', transactions.length);
+      if (transactions.length > 0) console.log('[DEBUG H4] First tx:', JSON.stringify(transactions[0]));
+      // #endregion
     } else {
       // PDF parsing
       const pdfResult = await parsePdfCommerzbank(buffer);
@@ -73,6 +88,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (transactions.length === 0) {
+      // #region agent log
+      console.log('[DEBUG H4] No transactions found - returning 400');
+      // #endregion
       return NextResponse.json({ error: 'No transactions found in file' }, { status: 400 });
     }
 
