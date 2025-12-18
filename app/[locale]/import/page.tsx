@@ -8,11 +8,14 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Upload, FileText, FileSpreadsheet, AlertCircle, CheckCircle2, Brain, Sparkles } from 'lucide-react';
 
+type ImportStage = 'idle' | 'uploading' | 'parsing' | 'analyzing' | 'done';
+
 export default function ImportPage() {
   const t = useTranslations('nav');
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [stage, setStage] = useState<ImportStage>('idle');
   const [reportCurrency, setReportCurrency] = useState('EUR');
   const [dragActive, setDragActive] = useState(false);
 
