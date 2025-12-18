@@ -76,12 +76,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No transactions found in file' }, { status: 400 });
     }
 
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/3fd1a540-59ca-4abc-88b9-9a8b673c0610',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'import/route.ts',message:'Parsed transactions',data:{count:transactions.length,sample:transactions[0]},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4'})}).catch(()=>{});
+    // #endregion
+
     // Get available categories for AI analysis
     const categories = await prisma.category.findMany({
       select: { id: true, key: true },
     });
     const categoryKeys = categories.map(c => c.key);
     const categoryMap = new Map(categories.map(c => [c.key, c.id]));
+
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/3fd1a540-59ca-4abc-88b9-9a8b673c0610',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'import/route.ts',message:'Categories loaded',data:{categoryCount:categories.length,categoryKeys},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4'})}).catch(()=>{});
+    // #endregion
 
     // Prepare transactions for AI analysis
     const transactionsForAnalysis = transactions.map((tx, index) => ({
@@ -95,7 +103,14 @@ export async function POST(request: NextRequest) {
     // Run AI analysis
     let aiAnalysis: Map<number, { categoryId: string | null; merchantNormalized: string; confidence: number }> = new Map();
     
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/3fd1a540-59ca-4abc-88b9-9a8b673c0610',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'import/route.ts',message:'Starting AI analysis',data:{txCount:transactionsForAnalysis.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4'})}).catch(()=>{});
+    // #endregion
     const llmResult = await analyzeTransactions(transactionsForAnalysis, categoryKeys);
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/3fd1a540-59ca-4abc-88b9-9a8b673c0610',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'import/route.ts',message:'AI analysis result',data:{success:llmResult.success,error:llmResult.error,model:llmResult.model},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
+    // #endregion
     
     if (llmResult.success && llmResult.data) {
       // Map AI results
