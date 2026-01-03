@@ -4,8 +4,7 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const nextConfig: NextConfig = {
-  // External packages that shouldn't be bundled by Turbopack
-  serverExternalPackages: ['pdf-parse'],
+  /* config options here */
 };
 
 export default withNextIntl(nextConfig);
